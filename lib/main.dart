@@ -26,7 +26,7 @@ class ATask {
   // 任务创建时间
   late DateTime createTime;
 
-  late Duration leftDuration;
+  late Duration leftDuration = const Duration(seconds: 0);
 
   late DateTime finishTime;
 
@@ -52,11 +52,37 @@ class ATaskListView extends Container {
   Widget taskBuilder(BuildContext context, int index) {
     return Container(
       color: Colors.white,
-      margin: const EdgeInsets.all(10),
-      child: Column(
+      margin: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(10),
+      child: Row(
         children: [
-          Text(tasks[index].title),
-          LinearProgressIndicator(value: tasks[index].progress,)
+          Image(image: FileImage(File("assets/images/doc.png")), width: 48, height: 48,),
+          Expanded(
+            flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: Row(
+                      children: [
+                        Text(tasks[index].title),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text("大小：100G/200G"),
+                      Text("剩余时间: 00:00:01"),
+                      Text("10Mb/s"),
+                    ],
+                  ),
+                  LinearProgressIndicator(value: tasks[index].progress)
+                ],
+              )
+          )
         ],
       )
     );
@@ -136,24 +162,12 @@ class MyHomePage extends StatelessWidget with TrayListener {
           OutlinedButton(
             child: const Text("progress"),
             onPressed: () {
-              showDialog(context: context, builder: (ctx) {
-                return AlertDialog(
-                  title: const Text("alert"),
-                  content: const TextField(),
-                  actions: [
-                    OutlinedButton(onPressed: () {
-                      debugPrint("ok");
-                    }, child: const Text("ok"))
-                  ]
-                );
-              });
-              
               var taskProvider = context.read<ATaskProvider>();
               taskProvider.addTask(ATask("uri", "add test"));
 
               var timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
                 var t = taskProvider.tasks[0];
-                t.progress += 0.001;
+                t.progress += 0.01;
                 taskProvider.updateTask(0, t);
                 if (t.progress >= 1) {
                   timer.cancel();
@@ -161,7 +175,7 @@ class MyHomePage extends StatelessWidget with TrayListener {
               });
             },
           ),
-          MaterialButton(
+          OutlinedButton(
             child: const Text("http"),
             onPressed: () async {
               windowManager.hide();
